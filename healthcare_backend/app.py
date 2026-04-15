@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import mysql.connector
@@ -5,71 +6,110 @@ import mysql.connector
 app = Flask(__name__)
 CORS(app)
 
-# MySQL Database Connection
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="healthcare_ai"
-)
 
-cursor = db.cursor(dictionary=True)
+# =========================
+# Database Connection Helper
+# =========================
+def get_db_connection():
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+        port=int(os.getenv("DB_PORT", 3306))
+    )
 
 
+# =========================
+# Home Route
+# =========================
 @app.route('/')
 def home():
-    return "Flask backend is running successfully!"
+    return jsonify({"message": "Flask backend is running successfully!"})
 
 
+# =========================
+# Doctors Routes
+# =========================
 @app.route('/doctors', methods=['GET'])
 def get_doctors():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM doctors")
     doctors = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return jsonify(doctors)
 
 
 @app.route('/admins', methods=['GET'])
 def get_admins():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM admins")
     admins = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return jsonify(admins)
 
 
+# =========================
+# Patient Routes
+# =========================
 @app.route('/add-patient', methods=['POST'])
 def add_patient():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    full_name = data.get('full_name')
-    age = data.get('age')
-    gender = data.get('gender')
-    phone = data.get('phone')
-    symptoms = data.get('symptoms')
-    urgency_level = data.get('urgency_level')
+        full_name = data.get('full_name')
+        age = data.get('age')
+        gender = data.get('gender')
+        phone = data.get('phone')
+        symptoms = data.get('symptoms')
+        urgency_level = data.get('urgency_level')
 
-    sql = """
-    INSERT INTO patients (full_name, age, gender, phone, symptoms, urgency_level)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    """
-    values = (full_name, age, gender, phone, symptoms, urgency_level)
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    cursor.execute(sql, values)
-    db.commit()
+        sql = """
+        INSERT INTO patients (full_name, age, gender, phone, symptoms, urgency_level)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        values = (full_name, age, gender, phone, symptoms, urgency_level)
 
-    return jsonify({"message": "Patient added successfully!"})
+        cursor.execute(sql, values)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Patient added successfully!"})
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 
 @app.route('/patients', methods=['GET'])
 def get_patients():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM patients")
     patients = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return jsonify(patients)
 
 
+# =========================
+# Consultation Routes
+# =========================
 @app.route('/save-consultation', methods=['POST'])
 def save_consultation():
     try:
         data = request.get_json()
-        
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
         sql = """
         INSERT INTO consultation_requests 
         (patient_name, extracted_symptoms, risk_level, doctor_suggestion, status, payment_status)
@@ -83,15 +123,17 @@ def save_consultation():
         )
 
         cursor.execute(sql, values)
-        db.commit()
+        conn.commit()
 
-        # Naye insert hue record ki ID nikalna
-        new_id = cursor.lastrowid 
+        new_id = cursor.lastrowid
+
+        cursor.close()
+        conn.close()
 
         return jsonify({
-            "status": "success", 
+            "status": "success",
             "message": "Data saved! Proceed to payment.",
-            "request_id": new_id  # Ye ID frontend ko dena zaroori hai
+            "request_id": new_id
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -99,35 +141,50 @@ def save_consultation():
 
 @app.route('/consultations', methods=['GET'])
 def get_consultations():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM consultation_requests ORDER BY created_at DESC")
     consultations = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return jsonify(consultations)
 
 
 @app.route('/update-status', methods=['POST'])
 def update_status():
-    data = request.get_json()
-    request_id = data.get('request_id')
-    status = data.get('status')
-    payment_status = data.get('payment_status') # Naya data mangwayein
+    try:
+        data = request.get_json()
+        request_id = data.get('request_id')
+        status = data.get('status')
+        payment_status = data.get('payment_status')
 
-    # SQL query ko modify karein dono columns update karne ke liye
-    sql = "UPDATE consultation_requests SET status=%s, payment_status=%s WHERE request_id=%s"
-    cursor.execute(sql, (status, payment_status, request_id))
-    db.commit()
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    return jsonify({"message": "Status and Payment updated successfully!"})
+        sql = "UPDATE consultation_requests SET status=%s, payment_status=%s WHERE request_id=%s"
+        cursor.execute(sql, (status, payment_status, request_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Status and Payment updated successfully!"})
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
 
 @app.route('/save-prescription', methods=['POST'])
 def save_prescription():
     try:
         data = request.get_json()
-        
+
         request_id = data.get('request_id')
         medicines = data.get('medicines')
         prescription_note = data.get('prescription_note')
 
-        # Pehle check karte hain ki column hai ya nahi (SQL query se status update aur data save)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
         sql = """
         UPDATE consultation_requests 
         SET medicines = %s, prescription_note = %s, status = 'Completed' 
@@ -136,18 +193,28 @@ def save_prescription():
         values = (medicines, prescription_note, request_id)
 
         cursor.execute(sql, values)
-        db.commit()
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
         return jsonify({
-            "status": "success", 
+            "status": "success",
             "message": "Prescription saved and consultation marked as completed!"
         })
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# =========================
+# Dashboard Routes
+# =========================
 @app.route('/dashboard-summary', methods=['GET'])
 def dashboard_summary():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     cursor.execute("SELECT COUNT(*) AS total_doctors FROM doctors")
     total_doctors = cursor.fetchone()['total_doctors']
 
@@ -156,6 +223,9 @@ def dashboard_summary():
 
     cursor.execute("SELECT COUNT(*) AS completed_requests FROM consultation_requests WHERE status = 'Completed'")
     completed_requests = cursor.fetchone()['completed_requests']
+
+    cursor.close()
+    conn.close()
 
     return jsonify({
         "total_doctors": total_doctors,
@@ -166,6 +236,9 @@ def dashboard_summary():
 
 @app.route('/home-data', methods=['GET'])
 def home_data():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     cursor.execute("SELECT COUNT(*) AS total_doctors FROM doctors")
     total_doctors = cursor.fetchone()['total_doctors']
 
@@ -192,6 +265,9 @@ def home_data():
     """)
     latest_completed = cursor.fetchone()
 
+    cursor.close()
+    conn.close()
+
     return jsonify({
         "total_doctors": total_doctors,
         "total_requests": total_requests,
@@ -201,35 +277,51 @@ def home_data():
     })
 
 
+# =========================
+# Register & Login Routes
+# =========================
 @app.route('/register-user', methods=['POST'])
 def register_user():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    role = data.get('role')
-    full_name = data.get('full_name')
-    age = data.get('age')
-    email = data.get('email')
-    password = data.get('password')
+        role = data.get('role')
+        full_name = data.get('full_name')
+        age = data.get('age')
+        email = data.get('email')
+        password = data.get('password')
 
-    if role == 'patient':
-        sql = """
-        INSERT INTO patients (full_name, age, email, password)
-        VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(sql, (full_name, age, email, password))
-        db.commit()
-        return jsonify({"message": "Patient registered successfully!"})
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    elif role == 'doctor':
-        sql = """
-        INSERT INTO doctors (full_name, specialization, email, password)
-        VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(sql, (full_name, "General Physician", email, password))
-        db.commit()
-        return jsonify({"message": "Doctor registered successfully!"})
+        if role == 'patient':
+            sql = """
+            INSERT INTO patients (full_name, age, email, password)
+            VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(sql, (full_name, age, email, password))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return jsonify({"message": "Patient registered successfully!"})
 
-    return jsonify({"message": "Invalid role"}), 400
+        elif role == 'doctor':
+            sql = """
+            INSERT INTO doctors (full_name, specialization, email, password)
+            VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(sql, (full_name, "General Physician", email, password))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return jsonify({"message": "Doctor registered successfully!"})
+
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Invalid role"}), 400
+
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 
 @app.route('/patient-login', methods=['POST'])
@@ -239,9 +331,15 @@ def patient_login():
     email = data.get('email')
     password = data.get('password')
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     sql = "SELECT * FROM patients WHERE email=%s AND password=%s"
     cursor.execute(sql, (email, password))
     patient = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
 
     if patient:
         return jsonify({
@@ -260,9 +358,15 @@ def doctor_login():
     email = data.get('email')
     password = data.get('password')
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     sql = "SELECT * FROM doctors WHERE email=%s AND password=%s"
     cursor.execute(sql, (email, password))
     doctor = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
 
     if doctor:
         return jsonify({
@@ -281,9 +385,15 @@ def admin_login():
     username = data.get('username')
     password = data.get('password')
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     sql = "SELECT * FROM admins WHERE username=%s AND password=%s"
     cursor.execute(sql, (username, password))
     admin = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
 
     if admin:
         return jsonify({
@@ -294,8 +404,15 @@ def admin_login():
     else:
         return jsonify({"message": "Invalid admin credentials"}), 401
 
+
+# =========================
+# Admin Routes
+# =========================
 @app.route('/admin-summary', methods=['GET'])
 def admin_summary():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
     cursor.execute("SELECT COUNT(*) AS total_patients FROM patients")
     total_patients = cursor.fetchone()['total_patients']
 
@@ -317,12 +434,15 @@ def admin_summary():
     recent_requests = cursor.fetchall()
 
     cursor.execute("""
-    SELECT doctor_id, full_name, specialization, email, availability_status, status
-    FROM doctors
-    ORDER BY doctor_id DESC
-    LIMIT 5
-""")
+        SELECT doctor_id, full_name, specialization, email, availability_status, status
+        FROM doctors
+        ORDER BY doctor_id DESC
+        LIMIT 5
+    """)
     recent_doctors = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return jsonify({
         "total_patients": total_patients,
@@ -333,19 +453,33 @@ def admin_summary():
         "recent_doctors": recent_doctors
     })
 
+
 @app.route('/update-doctor-status', methods=['POST'])
 def update_doctor_status():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    doctor_id = data.get('doctor_id')
-    status = data.get('status')
+        doctor_id = data.get('doctor_id')
+        status = data.get('status')
 
-    sql = "UPDATE doctors SET status=%s WHERE doctor_id=%s"
-    cursor.execute(sql, (status, doctor_id))
-    db.commit()
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    return jsonify({"message": "Doctor status updated successfully!"})
+        sql = "UPDATE doctors SET status=%s WHERE doctor_id=%s"
+        cursor.execute(sql, (status, doctor_id))
+        conn.commit()
 
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Doctor status updated successfully!"})
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+
+# =========================
+# Payment Routes
+# =========================
 @app.route('/process_payment', methods=['POST'])
 def process_payment():
     try:
@@ -361,12 +495,18 @@ def process_payment():
         if not reference_id or not patient_name or not amount or not method:
             return jsonify({"status": "error", "message": "Missing required fields"}), 400
 
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
         sql = """
         INSERT INTO payments (reference_id, patient_name, email, phone, amount, method, payment_status)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(sql, (reference_id, patient_name, email, phone, amount, method, "Success"))
-        db.commit()
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
         return jsonify({
             "status": "success",
@@ -379,17 +519,19 @@ def process_payment():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    
+
+
 @app.route('/get-my-prescription', methods=['GET'])
 def get_my_prescription():
     try:
-        # Hum URL se patient ka naam mangwa rahe hain
-        patient_name = request.args.get('name') 
-        
+        patient_name = request.args.get('name')
+
         if not patient_name:
             return jsonify({"status": "error", "message": "Name is required"}), 400
 
-        # Database se latest completed prescription uthao
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
         sql = """
             SELECT patient_name, extracted_symptoms, risk_level, medicines, prescription_note, created_at 
             FROM consultation_requests 
@@ -399,6 +541,9 @@ def get_my_prescription():
         cursor.execute(sql, (patient_name,))
         prescription = cursor.fetchone()
 
+        cursor.close()
+        conn.close()
+
         if prescription:
             return jsonify({
                 "status": "success",
@@ -406,12 +551,13 @@ def get_my_prescription():
             })
         else:
             return jsonify({
-                "status": "error", 
+                "status": "error",
                 "message": "Abhi tak koi prescription nahi mili."
             })
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/records-patient', methods=['GET'])
 def records_patient():
@@ -420,5 +566,7 @@ def records_patient():
     <p>Your payment has been saved and verified in database.</p>
     <a href='/'>Go Home</a>
     """
+
+
 if __name__ == '__main__':
     app.run(debug=True)
