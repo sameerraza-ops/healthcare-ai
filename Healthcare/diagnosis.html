@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Diagnosis - VoiceHealth AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        
+        .medical-card {
+            background: white;
+            border-radius: 2rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .ai-glow {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px dashed #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { border-color: rgba(239, 68, 68, 0.4); }
+            50% { border-color: rgba(239, 68, 68, 1); }
+            100% { border-color: rgba(239, 68, 68, 0.4); }
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <div class="flex items-center space-x-3">
+                <a href="doctor-dashboard.html" class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                </a>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight italic uppercase">Patient Diagnosis</h2>
+            </div>
+            <div class="bg-blue-600 px-4 py-2 rounded-xl text-white text-xs font-bold shadow-lg shadow-blue-200">
+                CASE ID: #SR-0786
+            </div>
+        </header>
+
+        <div class="grid lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-4 space-y-6">
+                <div class="medical-card p-8 shadow-sm">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <img src="https://ui-avatars.com/api/?name=Sameer+Raza&background=0284c7&color=fff" class="w-16 h-16 rounded-2xl shadow-md">
+                        <div>
+                            <h3 class="font-black text-slate-900 text-lg">Sameer Raza</h3>
+                            <p class="text-xs font-bold text-slate-400 tracking-widest uppercase">20 / Male</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 pt-4 border-t border-slate-50">
+                        <div class="flex justify-between text-sm italic">
+                            <span class="text-slate-400">Blood Group</span>
+                            <span class="text-red-500 font-bold">O+ Positive</span>
+                        </div>
+                        <div class="flex justify-between text-sm italic">
+                            <span class="text-slate-400">Weight</span>
+                            <span class="text-slate-700 font-bold">65 KG</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="medical-card p-8 ai-glow relative overflow-hidden">
+                    <div class="absolute top-4 right-4 bg-red-500 text-[8px] font-black text-white px-2 py-0.5 rounded tracking-widest uppercase">Critical</div>
+                    <h4 class="text-xs font-black text-red-600 uppercase tracking-widest mb-4 flex items-center">
+                        <i class="fa-solid fa-robot mr-2"></i> AI Summary
+                    </h4>
+
+                    <p class="text-sm text-red-700 font-semibold leading-relaxed italic">
+                        "Patient reported chest pain, shortness of breath, and high blood pressure via voice input. Immediate intervention recommended."
+                    </p>
+         </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="medical-card p-10 shadow-2xl shadow-slate-200/50 relative">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-2xl font-black text-slate-900 italic">Medical Report</h3>
+                        <i class="fa-solid fa-file-medical text-slate-100 text-6xl absolute top-6 right-10"></i>
+                    </div>
+
+                    <form class="space-y-8 relative z-10">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-1">Clinical Findings / Observations</label>
+                            <textarea placeholder="Write your clinical notes here..." class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] outline-none focus:border-blue-500 focus:bg-white transition-all h-32 font-medium text-slate-700"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-1">Prescribed Medicines</label>
+                            <div class="flex gap-3 mb-4">
+                                <input type="text" id="medName" placeholder="Medicine Name" class="flex-1 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all font-semibold">
+                                <input type="text" id="medDose" placeholder="Dosage (e.g. 1-0-1)" class="w-40 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all font-semibold">
+                                <button type="button" onclick="addMed()" class="w-14 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <div id="medList" class="flex flex-wrap gap-2">
+                                </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-6">
+                            <button type="button" class="flex items-center justify-center space-x-3 p-4 border-2 border-slate-200 rounded-2xl font-black text-xs text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition active:scale-95">
+                                <i class="fa-solid fa-print"></i>
+                                <span>Print Report</span>
+                            </button>
+                            <button type="button" onclick="saveReport()" class="flex items-center justify-center space-x-3 p-4 bg-blue-600 rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-blue-700 transition shadow-xl shadow-blue-500/20 active:scale-95">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Save & Generate</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Ye code browser ki memory (LocalStorage) se data uthayega
+    window.onload = () => {
+        const savedSymptoms = localStorage.getItem('patientSymptoms');
+        
+        if (savedSymptoms) {
+            // Ye line us laal box ke text ko badal degi
+            document.querySelector('.ai-glow p').innerText = `"${savedSymptoms}"`;
+        }
+    };
+
+    // ... baaki functions jaise addMed() ya saveReport() yahan honge ...
+
+        function addMed() {
+            const name = document.getElementById('medName').value;
+            const dose = document.getElementById('medDose').value;
+            if(!name || !dose) return;
+
+            const chip = document.createElement('div');
+            chip.className = "flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 animate-fadeIn";
+            chip.innerHTML = `<span>${name} (${dose})</span> <i class="fa-solid fa-xmark cursor-pointer hover:text-red-500" onclick="this.parentElement.remove()"></i>`;
+            
+            document.getElementById('medList').appendChild(chip);
+            document.getElementById('medName').value = "";
+            document.getElementById('medDose').value = "";
+        }
+
+        function saveReport() {
+    const btn = event.currentTarget;
+    btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Saving Report...';
+    
+    setTimeout(() => {
+        alert("📄 Report Saved! Generating Digital Prescription.");
+        // Doctor ke save karte hi Prescription Page khulega
+        window.location.href = "prescription.html";
+    }, 1500);
+}
+    </script>
+</body>
+</html>

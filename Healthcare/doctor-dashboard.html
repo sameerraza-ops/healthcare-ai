@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - VoiceHealth AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans">
+
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center px-8 sticky top-0 z-50">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-user-doctor text-blue-600 text-2xl"></i>
+            <h1 class="text-slate-800 font-bold text-xl">Dr. M.H. Ansari <span class="text-blue-600 text-sm font-medium ml-2 font-mono">(Cardiologist)</span></h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="flex items-center text-green-500 text-sm font-bold bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> ONLINE
+            </span>
+            <a href="login.html" class="text-gray-500 hover:text-red-500 font-medium transition text-sm">Logout</a>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto py-10 px-6">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+
+                <h2 class="text-3xl font-black text-slate-800">Patient Consultation Queue</h2>
+                <p class="text-gray-500 mt-1">Today's Case Summary & AI Analysis Reports</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Requests</p>
+                <p class="text-2xl font-black text-blue-600">04</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-800 text-slate-100 uppercase text-xs font-bold tracking-wider">
+                    <tr>
+    <th class="p-5">Patient Name</th>
+    <th class="p-5">AI Symptom Summary</th>
+    <th class="p-5">Urgency</th>
+    <th class="p-5">Status</th>
+    <th class="p-5 text-center">Action</th>
+</tr>
+                </thead>
+             <tbody id="consultationTableBody" class="divide-y divide-slate-100">
+</tbody>
+            </table>
+            <div id="prescriptionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all">
+        <div class="bg-blue-600 p-8 text-white">
+            <h3 class="text-2xl font-800 italic uppercase tracking-tighter">Digital Prescription</h3>
+            <p class="text-blue-100 text-xs mt-1 opacity-80 uppercase tracking-widest font-bold">Patient ID: <span id="modalPatientId">#000</span></p>
+        </div>
+        
+        <div class="p-8 space-y-6">
+            <div>
+                <label class="text-[10px] font-900 text-slate-400 uppercase tracking-widest mb-2 block ml-2">Medicines & Dosage</label>
+                <textarea id="medicinesInput" placeholder="e.g. Paracetamol 500mg (1-0-1)" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500 min-h-[100px]"></textarea>
+            </div>
+            <div>
+                <label class="text-[10px] font-900 text-slate-400 uppercase tracking-widest mb-2 block ml-2">Doctor's Advice / Notes</label>
+                <textarea id="adviceInput" placeholder="e.g. Bed rest for 2 days, plenty of fluids." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-4 text-slate-400 font-900 uppercase text-[10px] tracking-widest hover:bg-slate-50 rounded-2xl transition">Cancel</button>
+                <button onclick="submitPrescription()" class="flex-2 bg-slate-900 text-white px-10 py-4 rounded-2xl font-900 uppercase text-[10px] tracking-widest shadow-xl shadow-slate-200 hover:bg-blue-600 transition">Finalize & Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+        <h2 class="text-2xl font-bold mt-10 mb-4">Available Doctors (From Database)</h2>
+<div id="doctorList"></div>
+    </div>
+<script>
+fetch("http://127.0.0.1:5000/doctors")
+  .then(res => res.json())
+  .then(data => {
+    let container = document.getElementById("doctorList");
+    container.innerHTML = "";
+
+    data.forEach(doc => {
+      container.innerHTML += `
+        <div class="p-4 border rounded-xl mb-3 shadow bg-white">
+          <h3 class="font-bold text-lg text-slate-800">${doc.full_name}</h3>
+          <p class="text-gray-600">Specialization: ${doc.specialization}</p>
+          <p class="text-gray-600">Phone: ${doc.phone}</p>
+        </div>
+      `;
+    });
+  })
+  .catch(err => console.log(err));
+</script>
+<script>
+ let activeRequestId = null; // Ye global variable modal ke liye zaroori hai
+
+// 1. Function to Start Consultation
+function startConsultation(id) {
+    fetch("http://127.0.0.1:5000/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            request_id: id,
+            status: "In Progress"
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("🚀 Consultation Started!");
+        loadConsultations();
+    })
+    .catch(err => console.error("Start Error:", err));
+}
+
+// 2. Modal Controls (Add this)
+function openPrescriptionModal(id) {
+    activeRequestId = id; // Request ID ko save kar rahe hain taaki submit waqt kaam aaye
+    document.getElementById('modalPatientId').innerText = "#REQ-" + id;
+    document.getElementById('prescriptionModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('prescriptionModal').classList.add('hidden');
+    activeRequestId = null;
+    // Input fields saaf karna
+    document.getElementById('medicinesInput').value = "";
+    document.getElementById('adviceInput').value = "";
+}
+
+// 3. YOUR NEW FUNCTION (Updated logic)
+function submitPrescription() {
+    const medicines = document.getElementById('medicinesInput').value;
+    const advice = document.getElementById('adviceInput').value;
+
+    if (!medicines || !advice) {
+        alert("Bhai, medicines aur advice dono bharna zaroori hai!");
+        return;
+    }
+
+    fetch("http://127.0.0.1:5000/save-prescription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            request_id: activeRequestId, 
+            medicines: medicines,
+            prescription_note: advice
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            alert("✨ Prescription Saved & Case Completed!");
+            closeModal(); 
+            loadConsultations(); 
+        }
+    })
+    .catch(err => alert("Error: " + err));
+}
+
+// 4. Load Table Data
+function loadConsultations() {
+    fetch("http://127.0.0.1:5000/consultations")
+    .then(res => res.json())
+    .then(data => {
+        let tbody = document.getElementById("consultationTableBody");
+        tbody.innerHTML = "";
+
+        data.forEach(item => {
+            let badgeClass = item.risk_level.toLowerCase().includes("critical") ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600";
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="p-5 font-bold">${item.patient_name}</td>
+                    <td class="p-5 text-sm italic">"${item.extracted_symptoms}"</td>
+                    <td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black ${badgeClass}">${item.risk_level}</span></td>
+                    <td class="p-5">${getStatusBadge(item.status)}</td>
+                    <td class="p-5 text-center">${getActionButtons(item)}</td>
+                </tr>`;
+        });
+    });
+}
+
+function getStatusBadge(status) {
+    if (status === "Pending") return `<span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-[10px]">🟡 Pending</span>`;
+    if (status === "In Progress") return `<span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-[10px] animate-pulse">🔵 In Progress</span>`;
+    return `<span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-[10px]">🟢 Completed</span>`;
+}
+
+// 5. UPDATE: Action Buttons Logic (Connecting Modal here)
+function getActionButtons(item) {
+    if (item.status === "Pending") {
+        return `<button onclick="startConsultation(${item.request_id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Start</button>`;
+    }
+    if (item.status === "In Progress") {
+        // YAHAN CHANGE HAI: Ab direct complete nahi, Modal khulega
+        return `<button onclick="openPrescriptionModal(${item.request_id})" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Finalize Rx</button>`;
+    }
+    return `<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>`;
+}
+
+loadConsultations();
+setInterval(loadConsultations, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - VoiceHealth AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div class="max-w-5xl w-full grid lg:grid-cols-12 overflow-hidden rounded-[3rem] shadow-xl bg-white">
+        <div class="lg:col-span-5 bg-slate-900 p-12 text-white">
+            <h2 class="text-4xl font-bold mb-2">Payment Details</h2>
+            <p id="refId" class="text-slate-400 text-xs mb-8">Ref: VH-TEMP-99</p>
+            <div class="space-y-4 bg-white/5 p-6 rounded-3xl border border-white/10">
+                <div class="flex justify-between"><span>AI Consultation Fee</span><span>₹449.00</span></div>
+                <div class="flex justify-between"><span>Digital Report Kit</span><span>₹50.00</span></div>
+                <div class="pt-4 border-t border-white/10 flex justify-between items-end">
+                    <span class="text-xs uppercase">Total Payable</span>
+                    <span class="text-4xl font-bold">₹499</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 p-12">
+            <h3 class="text-2xl font-bold text-slate-900 mb-8">Choose Method</h3>
+
+            <div class="mb-4">
+                <input id="patientName" class="w-full border rounded-xl p-3 mb-3" placeholder="Patient name">
+                <input id="patientEmail" class="w-full border rounded-xl p-3 mb-3" placeholder="Patient email">
+                <input id="patientPhone" class="w-full border rounded-xl p-3" placeholder="Patient phone">
+            </div>
+
+            <form id="paymentForm" class="space-y-4">
+                <label class="block cursor-pointer">
+                    <input type="radio" name="method" value="UPI" checked>
+                    <span class="ml-2">UPI</span>
+                </label>
+                <label class="block cursor-pointer">
+                    <input type="radio" name="method" value="CARD">
+                    <span class="ml-2">Card</span>
+                </label>
+
+                <button type="button" id="payBtn" onclick="processBackendPayment()" class="w-full mt-6 bg-slate-900 hover:bg-blue-600 text-white py-4 rounded-2xl font-bold">
+                    <span id="btnText">Confirm & Pay ₹499</span>
+                </button>
+            </form>
+        </div>
+    </div>
+<script>
+    // 1. URL se request_id nikalna (Jo voice page se aayi hai)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestId = urlParams.get('request_id');
+
+    // 2. Reference ID generate karna
+    const tempId = "VH-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+    document.getElementById('refId').innerText = "Ref: " + tempId;
+
+    async function processBackendPayment() {
+        const btn = document.getElementById('payBtn');
+        const btnText = document.getElementById('btnText');
+
+        // IDs sahi ki gayi hain: patientName, patientEmail, patientPhone
+        const patientName = document.getElementById('patientName').value.trim();
+        const email = document.getElementById('patientEmail').value.trim();
+        const phone = document.getElementById('patientPhone').value.trim();
+        const method = document.querySelector('input[name="method"]:checked').value;
+
+        if (!patientName || !email || !phone) {
+            alert("fill information ✍️");
+            return;
+        }
+
+        btnText.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin mr-3"></i> Processing Payment...';
+        btn.disabled = true;
+
+        const paymentData = {
+            request_id: requestId, // Ye backend ko batayega kis consultation ka payment hai
+            reference_id: tempId,
+            patient_name: patientName,
+            email: email,
+            phone: phone,
+            amount: 499.00,
+            method: method
+        };
+
+        try {
+            // A. Pehle Payment record save karo
+            const response = await fetch('http://127.0.0.1:5000/process_payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                // B. Ab Consultation ka status 'Paid' update karo
+                await fetch('http://127.0.0.1:5000/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        request_id: requestId,
+                        status: 'Pending', // Ab ye doctor dashboard par dikhega
+                        payment_status: 'Paid'
+                    })
+                });
+
+                alert("✅ Payment Successful! Redirecting to Dashboard...");
+                window.location.href = 'patient-dashboard.html'; 
+            } else {
+                alert("❌ Error: " + result.message);
+                resetButton();
+            }
+        } catch (error) {
+            console.error(error);
+            alert("❌ Connection failed. Check if Flask is running!");
+            resetButton();
+        }
+    }
+
+    function resetButton() {
+        const btn = document.getElementById('payBtn');
+        const btnText = document.getElementById('btnText');
+        btn.disabled = false;
+        btnText.innerHTML = 'Confirm & Pay ₹499';
+    }
+</script>
+</body>
+</html>

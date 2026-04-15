@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Patient Health Dashboard | VoiceHealth AI</title>
+</head>
+<body class="bg-[#f0f4f8] min-h-screen font-['Plus_Jakarta_Sans',_sans-serif] p-4 md:p-10">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+            <div>
+                <h1 class="text-4xl font-800 text-slate-900 tracking-tighter italic uppercase leading-none">
+                    Patient <span class="text-blue-600">Analytics</span>
+                </h1>
+                <p class="text-slate-500 font-medium mt-3 italic text-sm">Real-time health monitoring and consultation logs.</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="clearRecords()" class="bg-white border border-red-100 px-5 py-3 rounded-xl text-[10px] font-900 uppercase tracking-widest text-red-500 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-trash-can mr-2"></i> Clear History
+                </button>
+                <a href="index.html" class="bg-slate-900 px-6 py-3 rounded-xl text-[10px] font-900 uppercase tracking-widest text-white hover:bg-blue-700 transition shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-plus mr-2"></i> New Checkup
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm group hover:border-blue-500/20 transition-all">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-heart-pulse text-xl"></i>
+                </div>
+                <h3 class="text-[10px] font-900 text-slate-400 uppercase tracking-widest mb-1">Total Consultations</h3>
+                <p id="totalCount" class="text-3xl font-800 text-slate-900 italic">0</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm group hover:border-red-500/20 transition-all">
+                <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <h3 class="text-[10px] font-900 text-slate-400 uppercase tracking-widest mb-1">High Urgency Alerts</h3>
+                <p id="highCount" class="text-3xl font-800 text-slate-900 italic text-red-600">0</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm group hover:border-emerald-500/20 transition-all">
+                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-shield-virus text-xl"></i>
+                </div>
+                <h3 class="text-[10px] font-900 text-slate-400 uppercase tracking-widest mb-1">System Status</h3>
+                <p class="text-3xl font-800 text-emerald-600 italic">SECURE</p>
+            </div>
+        </div>
+
+        <div class="mb-6 flex items-center justify-between px-4">
+            <h4 class="text-xs font-900 text-slate-400 uppercase tracking-[0.3em] italic">Consultation Timeline</h4>
+            <div class="h-[1px] flex-1 bg-slate-200 mx-6"></div>
+        </div>
+
+        <div id="recordsList" class="space-y-6">
+            </div>
+    </div>
+
+    <script>
+        function loadLocalRecords() {
+            const list = document.getElementById('recordsList');
+            const data = JSON.parse(localStorage.getItem('medicalRecords')) || [];
+            
+            // Update Vitals
+            document.getElementById('totalCount').innerText = data.length;
+            document.getElementById('highCount').innerText = data.filter(r => r.urgency === '🚨 HIGH').length;
+
+            if (data.length === 0) {
+                list.innerHTML = `
+                    <div class="bg-white border-2 border-dashed border-slate-200 rounded-[3rem] p-20 text-center">
+                        <i class="fa-solid fa-box-open text-4xl text-slate-200 mb-4"></i>
+                        <p class="text-slate-400 font-medium italic">No medical records found in local storage.</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = "";
+            data.reverse().forEach((record, index) => {
+                const card = `
+                <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_15px_40px_rgba(0,0,0,0.02)] overflow-hidden hover:translate-y-[-4px] transition-all duration-300">
+                    <div class="flex flex-col md:flex-row">
+                        <div class="md:w-64 bg-slate-50/50 p-8 border-r border-slate-100 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[9px] font-900 text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">Record #${100 + index}</span>
+                                <h5 class="mt-6 text-xl font-800 text-slate-900 tracking-tight">${record.name}</h5>
+                                <p class="text-[10px] font-700 text-slate-400 uppercase mt-1 tracking-widest">${record.age} Yrs • ${record.gender}</p>
+                            </div>
+                            <p class="text-[9px] font-800 text-slate-400 mt-8 uppercase tracking-widest italic">${record.time}</p>
+                        </div>
+
+                        <div class="flex-1 p-8 md:p-10">
+                            <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+                                <div class="space-y-2">
+                                    <h6 class="text-[10px] font-900 text-slate-400 uppercase tracking-widest">Reported Transcript</h6>
+                                    <p class="text-lg font-medium text-slate-700 italic leading-relaxed">"${record.symptoms}"</p>
+                                </div>
+                                <span class="whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-900 uppercase tracking-widest ${record.urgency === '🚨 HIGH' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}">
+                                    ${record.urgency}
+                                </span>
+                            </div>
+
+                            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4">
+                                <i class="fa-solid fa-laptop-medical text-blue-500 mt-1"></i>
+                                <div>
+                                    <h6 class="text-[10px] font-900 text-slate-900 uppercase tracking-widest mb-1">AI Recommendation</h6>
+                                    <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                                        ${record.urgency === '🚨 HIGH' ? 'Immediate clinical physical examination recommended. Keep monitoring vitals and avoid exertion.' : 'Standard rest and hydration advised. Follow up if symptoms persist for more than 48 hours.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                list.innerHTML += card;
+            });
+        }
+
+        function clearRecords() {
+            if(confirm("Are you sure you want to delete all history?")) {
+                localStorage.removeItem('medicalRecords');
+                loadLocalRecords();
+            }
+        }
+
+        loadLocalRecords();
+    </script>
+</body>
+</html>

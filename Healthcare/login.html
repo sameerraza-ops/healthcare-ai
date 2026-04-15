@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VoiceHealth AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Stylish Dropdown Customization */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+    </style>
+</head>
+<body class="bg-[#F0F4F8] min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_#E0E7FF,_#F0F4F8)]">
+
+    <div class="max-w-md w-full">
+        <div class="text-center mb-8">
+            <div class="inline-flex p-3 bg-blue-600 rounded-2xl shadow-xl shadow-blue-200 mb-4">
+                <i class="fa-solid fa-house-medical text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Voice<span class="text-blue-600">Health</span> AI</h1>
+            <p class="text-slate-500 font-medium mt-2">Log in to your account</p>
+        </div>
+
+        <div class="glass-card p-10 rounded-[2.5rem] shadow-2xl shadow-blue-900/5">
+            <form id="loginForm" class="space-y-6">
+                
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Select Your Role</label>
+
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-500 transition-colors group-focus-within:text-blue-600">
+                            <i class="fa-solid fa-user-tag"></i>
+                        </div>
+                        <select id="userRole" class="w-full pl-11 pr-10 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 font-bold text-slate-700 cursor-pointer shadow-sm">
+                            <option value="" disabled selected>Choose your role...</option>
+                            <option value="patient">👤 Patient</option>
+                            <option value="doctor">🩺 Doctor</option>
+                            <option value="admin">🔐 Administrator</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <div>
+<div>
+    <label id="loginFieldLabel" class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Email / Username</label>
+    <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-user text-sm"></i>
+        </div>
+        <input type="text" id="loginIdentifier" placeholder="Enter email or username" class="w-full pl-11 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium">
+    </div>
+</div>
+    </div>
+</div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </div>
+                       <input type="password" id="password" placeholder="••••••••" class="w-full pl-11 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 font-mono">
+                    </div>
+                </div>
+
+                <button id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[2px] shadow-xl shadow-blue-500/30 transform transition active:scale-95 hover:-translate-y-1">
+                    Login <i class="fa-solid fa-arrow-right-long ml-2"></i>
+                </button>
+
+                <p class="text-center text-slate-500 text-sm font-semibold mt-6">
+          Don't have an account? <a href="register.html" class="text-blue-600 hover:underline">Register Now</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+<script>
+const loginBtn = document.getElementById('loginBtn');
+const userRole = document.getElementById('userRole');
+const loginIdentifier = document.getElementById('loginIdentifier');
+const password = document.getElementById('password');
+const loginFieldLabel = document.getElementById('loginFieldLabel');
+
+// Role change hone par label update
+userRole.addEventListener("change", () => {
+    if (userRole.value === "admin") {
+        loginFieldLabel.innerText = "Username";
+        loginIdentifier.placeholder = "Enter admin username";
+    } else {
+        loginFieldLabel.innerText = "Email";
+        loginIdentifier.placeholder = "Enter your email";
+    }
+});
+
+loginBtn.onclick = async (e) => {
+    e.preventDefault();
+
+    const roleValue = userRole.value;
+    const identifierValue = loginIdentifier.value.trim();
+    const passwordValue = password.value.trim();
+
+    if (!roleValue) {
+        alert("⚠️ Please select your role!");
+        return;
+    }
+
+    if (!identifierValue || !passwordValue) {
+        alert("⚠️ Please fill all login fields!");
+        return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin mr-2"></i> Authenticating...';
+    loginBtn.style.opacity = "0.7";
+
+    try {
+        let url = "";
+        let payload = {};
+
+        if (roleValue === "patient") {
+            url = "http://127.0.0.1:5000/patient-login";
+            payload = {
+                email: identifierValue,
+                password: passwordValue
+            };
+        } 
+        else if (roleValue === "doctor") {
+            url = "http://127.0.0.1:5000/doctor-login";
+            payload = {
+                email: identifierValue,
+                password: passwordValue
+            };
+        } 
+        else if (roleValue === "admin") {
+            url = "http://127.0.0.1:5000/admin-login";
+            payload = {
+                username: identifierValue,
+                password: passwordValue
+            };
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("✅ " + result.message);
+
+            // patient name save for dashboard
+            if (result.full_name) {
+                localStorage.setItem("patientName", result.full_name);
+            }
+
+            if (roleValue === "patient") {
+                window.location.href = "patient-dashboard.html";
+            } 
+            else if (roleValue === "doctor") {
+                window.location.href = "doctor-dashboard.html";
+            } 
+            else if (roleValue === "admin") {
+                window.location.href = "admin-dashboard.html";
+            }
+        } else {
+            alert("❌ " + result.message);
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("❌ Server connection error!");
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = 'Login <i class="fa-solid fa-arrow-right-long ml-2"></i>';
+        loginBtn.style.opacity = "1";
+    }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join VoiceHealth AI - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        .bg-gradient-mesh {
+            background-color: #f0f4f8;
+            background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0px, transparent 50%), 
+                              radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        input:focus, select:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-mesh min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-5xl w-full grid lg:grid-cols-2 rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] overflow-hidden bg-white">
+        
+        <div class="hidden lg:flex bg-blue-600 p-16 text-white flex-col justify-between relative overflow-hidden">
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center space-x-3 mb-12">
+                    <i class="fa-solid fa-house-medical text-3xl"></i>
+                    <span class="text-2xl font-black italic tracking-tighter">VoiceHealth AI</span>
+                </div>
+                <h2 class="text-5xl font-black leading-tight mb-6">Revolutionizing <br> Healthcare with <span class="text-blue-200">Voice AI.</span></h2>
+                <p class="text-blue-100 text-lg opacity-80 leading-relaxed">Join thousands of patients and doctors bridging the gap with intelligent symptom extraction.</p>
+            </div>
+
+            <div class="relative z-10 flex items-center space-x-6">
+                <div class="flex -space-x-4">
+                    <img src="https://ui-avatars.com/api/?name=Dr+S&background=random" class="w-12 h-12 rounded-full border-4 border-blue-600">
+                    <img src="https://ui-avatars.com/api/?name=Patient+A&background=random" class="w-12 h-12 rounded-full border-4 border-blue-600">
+                    <img src="https://ui-avatars.com/api/?name=Dr+V&background=random" class="w-12 h-12 rounded-full border-4 border-blue-600">
+                </div>
+                <p class="text-sm font-bold tracking-wide">Trusted by 500+ Specialists</p>
+            </div>
+        </div>
+
+        <div class="p-10 lg:p-16 glass-panel">
+            <div class="mb-10 text-center lg:text-left">
+                <h3 class="text-3xl font-black text-slate-900 tracking-tight italic uppercase">New Account</h3>
+                <p class="text-slate-500 font-semibold mt-1">Please fill in your details to get started</p>
+            </div>
+
+            <form id="regForm" class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">How are you?</label>
+                    <div class="relative group mt-1">
+                        <i class="fa-solid fa-user-doctor absolute left-4 top-1/2 -translate-y-1/2 text-blue-500"></i>
+                        <select id="role" class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all font-bold text-slate-700 appearance-none">
+                            <option value="patient">👤 Patient </option>
+                            <option value="doctor">🩺 Doctor </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                        <input type="text" id="fullName" placeholder="Sameer Raza" class="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all font-semibold">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Age</label>
+                       <input type="number" id="age" placeholder="25" class="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                    <input type="email" id="email" placeholder="example@mail.com" class="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all font-semibold">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                   <input type="password" id="password" placeholder="••••••••" class="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all font-mono">
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-[3px] shadow-2xl shadow-slate-200 transition-all duration-500 transform active:scale-95 mt-4 group">
+                    Register Now <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition"></i>
+                </button>
+            </form>
+
+            <p class="text-center mt-8 text-slate-500 font-semibold text-sm">
+                Already have an account?<a href="login.html" class="text-blue-600 hover:underline">Login Now</a>
+            </p>
+        </div>
+    </div>
+<script>
+document.getElementById('regForm').onsubmit = async (e) => {
+    e.preventDefault();
+
+    const role = document.getElementById("role").value;
+    const fullName = document.getElementById("fullName").value;
+    const age = document.getElementById("age").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    // patient name save for later pages
+    localStorage.setItem("patientName", fullName);
+
+    const btn = e.target.querySelector('button');
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> Creating...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/register-user", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                role: role,
+                full_name: fullName,
+                age: age,
+                email: email,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+        alert(result.message);
+
+        if (response.ok) {
+            window.location.href = "login.html";
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = 'Register Now <i class="fa-solid fa-arrow-right ml-2"></i>';
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Server connection error!");
+        btn.disabled = false;
+        btn.innerHTML = 'Register Now <i class="fa-solid fa-arrow-right ml-2"></i>';
+    }
+};
+</script>
+</body>
+</html>

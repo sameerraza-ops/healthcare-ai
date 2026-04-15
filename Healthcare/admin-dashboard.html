@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - VoiceHealth AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .active-link { background: #2563eb; color: white !important; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen flex">
+
+    <aside class="w-72 bg-[#1e293b] border-r border-slate-800 p-6 hidden md:flex flex-col justify-between sticky top-0 h-screen">
+        <div>
+            <div class="flex items-center space-x-3 mb-12 px-2">
+                <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                </div>
+                <h1 class="font-black text-2xl text-white tracking-tighter italic uppercase">Admin</h1>
+            </div>
+            
+            <nav class="space-y-3">
+                <a href="javascript:void(0)" onclick="switchTab('stats', this)" class="nav-item active-link flex items-center space-x-3.5 p-4 rounded-2xl transition-all duration-300 font-bold">
+                    <i class="fa-solid fa-chart-pie text-lg"></i> <span>Main Overview</span>
+                </a>
+                
+                <a href="javascript:void(0)" onclick="switchTab('patients', this)" class="nav-item flex items-center space-x-3.5 p-4 text-slate-400 hover:bg-slate-800 rounded-2xl transition-all duration-300">
+                    <i class="fa-solid fa-users text-lg"></i> <span>Manage All Patients</span>
+                </a>
+                
+                <a href="javascript:void(0)" onclick="switchTab('doctors', this)" class="nav-item flex items-center space-x-3.5 p-4 text-slate-400 hover:bg-slate-800 rounded-2xl transition-all duration-300">
+                    <i class="fa-solid fa-user-doctor text-lg"></i> <span>Manage All Doctors</span>
+                </a>
+
+                <div class="border-t border-slate-800 my-6"></div>
+
+                <a href="login.html" class="flex items-center space-x-3.5 p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all duration-300 font-bold">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i> <span>Logout Session</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">System Health</p>
+            <div class="flex items-center space-x-2 text-xs font-mono text-green-400">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                <span>All Systems Operational</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-10 overflow-y-auto">
+        
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h2 id="pageTitle" class="text-3xl font-black text-white italic tracking-tight uppercase">Main Overview</h2>
+                <p class="text-slate-500 text-sm mt-1">Real-time statistics and system logs for VoiceHealth AI.</p>
+            </div>
+            <div class="bg-slate-800 px-5 py-2.5 rounded-2xl border border-slate-700 text-[11px] font-bold text-slate-400">
+                SERVER STATUS: <span class="text-blue-400 font-mono ml-1">v2.0.4-STABLE</span>
+            </div>
+        </header>
+
+        <section id="stats-content">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div class="bg-[#1e293b] p-8 rounded-[2rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
+            <i class="fa-solid fa-users absolute -right-6 -bottom-6 text-9xl opacity-5 group-hover:rotate-12 transition"></i>
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">Total Patients</p>
+            <h3 id="totalPatients" class="text-5xl font-black text-white italic tracking-tighter">0</h3>
+            <p class="text-xs text-green-500 mt-2 font-bold">Registered in system</p>
+        </div>
+
+        <div class="bg-[#1e293b] p-8 rounded-[2rem] border border-slate-800 border-l-4 border-l-blue-600 shadow-2xl group">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">Total Doctors</p>
+            <h3 id="totalDoctors" class="text-5xl font-black text-white italic tracking-tighter">0</h3>
+            <p class="text-xs text-blue-500 mt-2 font-bold">Available in system</p>
+        </div>
+
+        <div class="bg-[#1e293b] p-8 rounded-[2rem] border border-slate-800 border-l-4 border-l-yellow-500 shadow-2xl">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">Total Consultations</p>
+            <h3 id="totalConsultations" class="text-5xl font-black text-yellow-500 italic tracking-tighter">0</h3>
+            <p class="text-xs text-slate-500 mt-2 font-bold">All patient requests</p>
+        </div>
+
+        <div class="bg-[#1e293b] p-8 rounded-[2rem] border border-slate-800 border-l-4 border-l-green-500 shadow-2xl">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">Completed Cases</p>
+            <h3 id="completedCases" class="text-5xl font-black text-green-500 italic tracking-tighter">0</h3>
+            <p class="text-xs text-slate-500 mt-2 font-bold">Consultations completed</p>
+        </div>
+    </div>
+</section>
+
+        <section id="patients-content" class="hidden">
+            <div class="bg-[#1e293b] rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900/50 text-[10px] uppercase font-black text-slate-500 tracking-[3px]">
+                        <tr>
+                            <th class="p-6">Patient Details</th>
+                            <th class="p-6">Age/Gender</th>
+                            <th class="p-6">Last Case</th>
+                            <th class="p-6">Actions</th>
+                        </tr>
+                    </thead>
+                   <tbody id="patientsTableBody" class="divide-y divide-slate-800">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="doctors-content" class="hidden">
+    <div id="doctorsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    </div>
+</section>
+
+    </main>
+
+    <script>
+        function switchTab(tabName, element) {
+            // 1. Title Update Karein
+            const titles = {
+                'stats': 'Main Overview',
+                'patients': 'Patient Management',
+                'doctors': 'Doctor Management'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabName];
+
+            // 2. Content Sections ko Hide/Show karein
+            document.getElementById('stats-content').classList.add('hidden');
+            document.getElementById('patients-content').classList.add('hidden');
+            document.getElementById('doctors-content').classList.add('hidden');
+            
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+
+            // 3. Sidebar Menu Highlights update karein
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => {
+                item.classList.remove('active-link', 'text-white');
+                item.classList.add('text-slate-400');
+            });
+
+            element.classList.add('active-link');
+            element.classList.remove('text-slate-400');
+        }
+    </script>
+    <script>
+fetch("http://127.0.0.1:5000/admin-summary")
+  .then(res => res.json())
+  .then(data => {
+    // Stats cards
+    document.getElementById("totalPatients").innerText = data.total_patients;
+    document.getElementById("totalDoctors").innerText = data.total_doctors;
+    document.getElementById("totalConsultations").innerText = data.total_consultations;
+    document.getElementById("completedCases").innerText = data.completed_cases;
+
+    // Patients table
+    let patientsTable = document.getElementById("patientsTableBody");
+    patientsTable.innerHTML = "";
+
+    data.recent_requests.forEach((item, index) => {
+      patientsTable.innerHTML += `
+        <tr class="hover:bg-slate-800/50 transition">
+            <td class="p-6">
+                <div class="font-bold text-white">${item.patient_name}</div>
+                <div class="text-[10px] text-slate-500">UID: #REQ-${index + 1}</div>
+            </td>
+            <td class="p-6 text-slate-400 font-bold text-sm italic">-- / --</td>
+            <td class="p-6">
+                <div class="text-xs font-mono text-blue-400">${new Date(item.created_at).toLocaleDateString()}</div>
+                <div class="text-[10px] text-red-500 font-black uppercase">${item.risk_level}</div>
+            </td>
+            <td class="p-6">
+                <button class="text-blue-500 text-xs font-bold hover:underline">View History</button>
+            </td>
+        </tr>
+      `;
+    });
+
+    // Doctors grid
+    let doctorsGrid = document.getElementById("doctorsGrid");
+    doctorsGrid.innerHTML = "";
+
+    data.recent_doctors.forEach(doc => {
+      doctorsGrid.innerHTML += `
+    <div class="bg-[#1e293b] p-6 rounded-3xl border border-slate-800 flex justify-between items-center">
+        <div>
+            <h4 class="font-bold text-white text-lg">${doc.full_name}</h4>
+            <p class="text-blue-400 text-xs font-bold italic uppercase tracking-widest">${doc.specialization}</p>
+            <p class="text-[10px] text-slate-500 mt-1 font-mono">${doc.email}</p>
+            <p class="text-[10px] text-slate-400 mt-2 font-bold">Status: 
+                <span class="${
+                    doc.status === 'Approved' ? 'text-green-400' :
+                    doc.status === 'Rejected' ? 'text-red-400' :
+                    'text-yellow-400'
+                }">
+                    ${doc.status || 'Pending'}
+                </span>
+            </p>
+        </div>
+
+        <div class="flex flex-col space-y-2">
+            <button onclick="updateDoctor(${doc.doctor_id}, 'Approved')" class="bg-green-600 hover:bg-green-700 text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase transition">
+                Approve
+            </button>
+
+            <button onclick="updateDoctor(${doc.doctor_id}, 'Rejected')" class="bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase transition">
+                Reject
+            </button>
+        </div>
+    </div>
+`;
+    });
+  })
+  .catch(err => console.log("Admin summary fetch error:", err));
+</script>
+
+<script>
+function updateDoctor(id, status) {
+    fetch("http://127.0.0.1:5000/update-doctor-status", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            doctor_id: id,
+            status: status
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    })
+    .catch(err => console.log(err));
+}
+</script>
+
+</body>
+</html>

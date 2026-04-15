@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Patient Registration | VoiceHealth AI</title>
+</head>
+<body class="bg-[#02040a]">
+   <section class="min-h-screen bg-[#f8fafc] flex items-center justify-center py-12 px-6 font-['Plus_Jakarta_Sans',_sans-serif]">
+    
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-50 rounded-bl-[100%] -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-blue-50 rounded-tr-[100%] -z-10"></div>
+
+    <div class="max-w-4xl w-full grid md:grid-cols-10 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+        
+        <div class="md:col-span-3 bg-blue-600 p-10 text-white flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-8">
+                    <i class="fa-solid fa-hospital-user text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-800 leading-tight mb-4">Patient <br>Onboarding</h2>
+                <p class="text-blue-100 text-sm font-medium leading-relaxed">Please provide accurate information for the AI to generate a precise diagnostic report.</p>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex items-center space-x-4">
+                    <span class="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-bold text-xs">1</span>
+                    <span class="text-xs font-900 uppercase tracking-widest">Registration</span>
+                </div>
+                <div class="flex items-center space-x-4 opacity-50">
+                    <span class="w-8 h-8 rounded-full border-2 border-white/50 flex items-center justify-center font-bold text-xs">2</span>
+                    <span class="text-xs font-900 uppercase tracking-widest">Voice Analysis</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-7 p-10 md:p-16">
+            <div class="mb-10">
+                <span class="text-[10px] font-900 text-blue-600 uppercase tracking-[0.3em] mb-2 block">Step 01/02</span>
+                <h3 class="text-3xl font-800 text-slate-900 tracking-tighter">Personal Information</h3>
+            </div>
+
+            <form id="regForm" class="space-y-8">
+                <div class="space-y-2">
+                    <label class="text-xs font-800 text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                    <input type="text" id="pName" required placeholder="John Doe" 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-medium">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-800 text-slate-500 uppercase tracking-widest ml-1">Age (Years)</label>
+                        <input type="number" id="pAge" required placeholder="25" 
+                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-800 text-slate-500 uppercase tracking-widest ml-1">Gender</label>
+                        <select id="pGender" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all font-medium appearance-none cursor-pointer">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-blue-700 text-white font-900 uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl shadow-blue-500/10 transition-all active:scale-95 flex items-center justify-center group">
+                        <span>Continue to Voice AI</span>
+                        <i class="fa-solid fa-arrow-right ml-3 group-hover:translate-x-2 transition"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-10 pt-8 border-t border-slate-100 flex items-center justify-between opacity-60">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-check text-green-500"></i>
+                    <span class="text-[10px] font-800 text-slate-400 uppercase tracking-widest">HIPAA Compliant</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-blue-500"></i>
+                    <span class="text-[10px] font-800 text-slate-400 uppercase tracking-widest">Encrypted Sync</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('regForm').onsubmit = (e) => {
+        e.preventDefault();
+        const data = {
+            name: document.getElementById('pName').value,
+            age: document.getElementById('pAge').value,
+            gender: document.getElementById('pGender').value
+        };
+        localStorage.setItem('tempPatient', JSON.stringify(data));
+        window.location.href = 'voice-consultation.html';
+    };
+</script>
+    <script>
+        document.getElementById('regForm').onsubmit = (e) => {
+            e.preventDefault();
+            localStorage.setItem('tempPatient', JSON.stringify({
+                name: document.getElementById('pName').value,
+                age: document.getElementById('pAge').value,
+                gender: document.getElementById('pGender').value
+            }));
+            window.location.href = 'voice-consultation.html';
+        };
+    </script>
+</body>
+</html>
