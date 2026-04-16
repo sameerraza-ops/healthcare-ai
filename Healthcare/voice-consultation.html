@@ -195,7 +195,7 @@
     // 4. FINAL BUTTON LOGIC (Finish & Connect)
     requestBtn.onclick = async () => {
         // FIX: Login page se jo naam save kiya tha wahi uthana hai
-        const pName = localStorage.getItem("full_name") || "Guest Patient";
+       const pName = localStorage.getItem("patientName") || "Guest Patient";
         const symptoms = symptomBox.value;
         const risk = riskBadge.innerText;
 
@@ -209,7 +209,7 @@
         requestBtn.innerHTML = "Processing...";
 
         try {
-            const response = await fetch("http://127.0.0.1:5000/save-consultation", {
+            const response = await fetch("https://healthcare-backend-jfp3.onrender.com/save-consultation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

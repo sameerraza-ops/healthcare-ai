@@ -252,8 +252,7 @@ Welcome Back, <span id="patientNameDisplay" class="bg-gradient-to-r from-blue-60
     // 2. Profile & Prescription Loader
     document.addEventListener("DOMContentLoaded", () => {
         // Login page se save kiya hua naam yahan fetch hoga
-        const name = localStorage.getItem("full_name");
-
+      const name = localStorage.getItem("patientName");
         // Security: Agar login nahi hai toh wapas bhej do
         if (!name) {
             window.location.href = "login.html";
@@ -289,7 +288,7 @@ Welcome Back, <span id="patientNameDisplay" class="bg-gradient-to-r from-blue-60
         const container = document.getElementById('prescriptionContent');
         if(!container) return;
 
-        fetch(`http://127.0.0.1:5000/get-my-prescription?name=${encodeURIComponent(pName)}`)
+        fetch(`https://healthcare-backend-jfp3.onrender.com/get-my-prescription?name=${encodeURIComponent(pName)}`)
         .then(res => res.json())
         .then(result => {
             if(result.status === "success") {

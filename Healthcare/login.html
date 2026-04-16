@@ -137,21 +137,21 @@ loginBtn.onclick = async (e) => {
         let payload = {};
 
         if (roleValue === "patient") {
-            url = "http://127.0.0.1:5000/patient-login";
+            url = "https://healthcare-backend-jfp3.onrender.com/patient-login";
             payload = {
                 email: identifierValue,
                 password: passwordValue
             };
         } 
         else if (roleValue === "doctor") {
-            url = "http://127.0.0.1:5000/doctor-login";
+            url = "https://healthcare-backend-jfp3.onrender.com/doctor-login";
             payload = {
                 email: identifierValue,
                 password: passwordValue
             };
         } 
         else if (roleValue === "admin") {
-            url = "http://127.0.0.1:5000/admin-login";
+            url = "https://healthcare-backend-jfp3.onrender.com/admin-login";
             payload = {
                 username: identifierValue,
                 password: passwordValue

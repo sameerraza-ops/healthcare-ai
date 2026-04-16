@@ -147,7 +147,7 @@
         }
     </script>
     <script>
-fetch("http://127.0.0.1:5000/admin-summary")
+fetch("http://https://healthcare-backend-jfp3.onrender.com/admin-summary")
   .then(res => res.json())
   .then(data => {
     // Stats cards
@@ -219,7 +219,7 @@ fetch("http://127.0.0.1:5000/admin-summary")
 
 <script>
 function updateDoctor(id, status) {
-    fetch("http://127.0.0.1:5000/update-doctor-status", {
+    fetch("http://https://healthcare-backend-jfp3.onrender.com/update-doctor-status", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

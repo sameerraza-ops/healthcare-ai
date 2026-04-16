@@ -78,7 +78,7 @@
 <div id="doctorList"></div>
     </div>
 <script>
-fetch("http://127.0.0.1:5000/doctors")
+fetch("https://healthcare-backend-jfp3.onrender.com/doctors")
   .then(res => res.json())
   .then(data => {
     let container = document.getElementById("doctorList");
@@ -101,7 +101,7 @@ fetch("http://127.0.0.1:5000/doctors")
 
 // 1. Function to Start Consultation
 function startConsultation(id) {
-    fetch("http://127.0.0.1:5000/update-status", {
+    fetch("https://healthcare-backend-jfp3.onrender.com/update-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -142,7 +142,7 @@ function submitPrescription() {
         return;
     }
 
-    fetch("http://127.0.0.1:5000/save-prescription", {
+    fetch("https://healthcare-backend-jfp3.onrender.com/save-prescription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -164,7 +164,7 @@ function submitPrescription() {
 
 // 4. Load Table Data
 function loadConsultations() {
-    fetch("http://127.0.0.1:5000/consultations")
+    fetch("https://healthcare-backend-jfp3.onrender.com/consultations")
     .then(res => res.json())
     .then(data => {
         let tbody = document.getElementById("consultationTableBody");

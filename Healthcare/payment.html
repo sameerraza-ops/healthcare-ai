@@ -86,7 +86,7 @@
 
         try {
             // A. Pehle Payment record save karo
-            const response = await fetch('http://127.0.0.1:5000/process_payment', {
+            const response = await fetch('https://healthcare-backend-jfp3.onrender.com/process_payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(paymentData)
@@ -96,7 +96,7 @@
 
             if (result.status === "success") {
                 // B. Ab Consultation ka status 'Paid' update karo
-                await fetch('http://127.0.0.1:5000/update-status', {
+                await fetch('https://healthcare-backend-jfp3.onrender.com/update-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
